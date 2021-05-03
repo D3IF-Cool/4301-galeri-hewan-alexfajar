@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.d3if4007.galerihewan.R
 import org.d3if4007.galerihewan.model.Hewan
+import org.d3if4007.galerihewan.network.ApiStatus
 import org.d3if4007.galerihewan.network.HewanApi
 import org.d3if4007.galerihewan.network.HewanApiService
 import java.lang.Exception
@@ -15,6 +16,7 @@ import java.lang.Exception
 class MainViewModel : ViewModel() {
 
     private val data = MutableLiveData<List<Hewan>>()
+    private val status = MutableLiveData<ApiStatus>()
 
     init {
         retriveData()
@@ -22,14 +24,19 @@ class MainViewModel : ViewModel() {
 
     private fun retriveData() {
         viewModelScope.launch {
+            status.value = ApiStatus.LOADING
             try {
                 data.value = HewanApi.service.getHewan()
+                status.value = ApiStatus.SUCCESS
             } catch (e : Exception) {
                 Log.d("MainViewModel", "Failure: ${e.message}")
+                status.value = ApiStatus.FAILED
             }
         }
     }
 
     fun getData() : LiveData<List<Hewan>> = data
+
+    fun getStatus() : LiveData<ApiStatus> = status
 
 }
